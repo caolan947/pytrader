@@ -4,6 +4,7 @@ from binance.client import Client
 from binance import BinanceSocketManager
 import asyncio
 
+#TODO implement logging
 class Streamer:
     def __init__(self):
         PAIR = 'BTCUSDT'
