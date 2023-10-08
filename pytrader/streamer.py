@@ -2,7 +2,6 @@ from datetime import datetime
 import pandas as pd
 from binance.client import Client
 from binance import BinanceSocketManager
-import asyncio
 from pytrader import logger
 
 class Streamer:
@@ -27,29 +26,38 @@ class Streamer:
             while self.run:
                 result = await kscm.recv()
 
-                # Load dataframe
-                df = pd.DataFrame(result['k'], index=[0])
+                c = Candle(result)
 
-                # Transform data
-                df = df.rename(columns={'t': 'Open_time', 'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'T': 'Close_time', 'x': 'Close_flag'})
-                df['Stream_time'] = datetime.fromtimestamp(result['E'] / 1e3)
-                df['Open_time'] = pd.to_datetime(df['Open_time'], unit='ms')
-                df['Open'] = pd.to_numeric(df['Open'])
-                df['High'] = pd.to_numeric(df['High'])
-                df['Low'] = pd.to_numeric(df['Low'])
-                df['Close'] = pd.to_numeric(df['Close'])
-                df['Close_time'] = pd.to_datetime(df['Close_time'], unit='ms')
-
-                # Drop unused columns
-                columns = ['s', 'i', 'f', 'L', 'v', 'n', 'q','V', 'Q', 'B']
-                df.drop(columns, axis = 1, inplace = True)
-
-                # Extract first row
-                df_item = df.iloc[0]
-       
-                print(df_item)
-                self.log.info(df_item.to_dict())
+                self.log.info(c.to_dict())
 
     def end_stream(self):
         self.run = False
         self.log.info(f"Ending market data stream")
+
+class Candle():
+    def __init__(self, result):
+
+        df = pd.DataFrame(result['k'], index=[0])
+
+        df = df.rename(columns={'t': 'Open_time', 'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'T': 'Close_time', 'x': 'Close_flag'})
+        df['Stream_time'] = datetime.fromtimestamp(result['E'] / 1e3)
+        df['Open_time'] = pd.to_datetime(df['Open_time'], unit='ms')
+        df['Open'] = pd.to_numeric(df['Open'])
+        df['High'] = pd.to_numeric(df['High'])
+        df['Low'] = pd.to_numeric(df['Low'])
+        df['Close'] = pd.to_numeric(df['Close'])
+        df['Close_time'] = pd.to_datetime(df['Close_time'], unit='ms')
+
+        df = df.iloc[0]
+
+        self.open = df['Open']
+        self.close = df['Close']
+        self.high = df['High']
+        self.low = df['Low']
+        self.open_time = df['Open_time']
+        self.close_time = df['Close_time']
+        self.close_flag = df['Close_flag']
+
+    def to_dict(self):
+
+        return vars(self)
