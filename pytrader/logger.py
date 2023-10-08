@@ -15,8 +15,3 @@ def config_logger(level=logging.INFO):
     logger.addHandler(handler)
 
     return logger
-
-# TODO remove debug code below
-historical_logger = config_logger()
-historical_records = [{'1':'2'},{'2':'3'},{'3':'4'}]
-historical_logger.info('\n'.join(map(str, historical_records)))
