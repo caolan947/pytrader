@@ -3,20 +3,28 @@ import pandas as pd
 from binance.client import Client
 from binance import BinanceSocketManager
 import asyncio
+from pytrader import logger
 
-#TODO implement logging
 class Streamer:
     def __init__(self):
         PAIR = 'BTCUSDT'
         TIMEFRAME = Client.KLINE_INTERVAL_1MINUTE
 
+        self.log = logger.config_logger()
+        self.run = True
+
+        self.log.info("Creating Binance API client")
         self.client = Client()
+        self.log.info("Initialising BinanceSocketManager")
         self.bm = BinanceSocketManager(self.client)
+        self.log.info(f"Connecting to websocket for {PAIR} kline for {TIMEFRAME} interval")
         self.ks = self.bm.kline_socket(PAIR, interval=TIMEFRAME)
 
-    async def stream_market_data(self):
+    async def start_stream(self):
+        self.log.info(f"Beginning market data stream")
+
         async with self.ks as kscm:
-            while True:
+            while self.run:
                 result = await kscm.recv()
 
                 # Load dataframe
@@ -36,15 +44,12 @@ class Streamer:
                 columns = ['s', 'i', 'f', 'L', 'v', 'n', 'q','V', 'Q', 'B']
                 df.drop(columns, axis = 1, inplace = True)
 
-                # Reorder columns
-                first_column = df.pop('Stream_time')
-                df.insert(0, 'Stream_time', first_column)
-
                 # Extract first row
                 df_item = df.iloc[0]
        
-                print(df_item) #.to_dict()
+                print(df_item)
+                self.log.info(df_item.to_dict())
 
-s = Streamer()
-loop = asyncio.get_event_loop()
-loop.run_until_complete(s.stream_market_data()).stream()
+    def end_stream(self):
+        self.run = False
+        self.log.info(f"Ending market data stream")
