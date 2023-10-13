@@ -42,3 +42,5 @@ class Streamer:
         """
         self.log.info(f"Ending market data stream")
         self.run = False
+
+        return self

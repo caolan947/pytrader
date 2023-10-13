@@ -9,6 +9,16 @@ class TestStreamer(unittest.TestCase):
         self.fake_client = Mock()
         self.fake_ks = Mock()
         self.fake_bm = Mock()
+        self.fake_streamer = Mock(
+            pair = 'BTCUSDT',
+            timeframe = '1m',
+            log = self.fake_log,
+            run = True,
+            client = self.fake_client,
+            bm = self.fake_bm,
+            ks = self.fake_ks
+        )
+        self.streamer = streamer.Streamer()
 
     @patch('pytrader.streamer.BinanceSocketManager')
     @patch('pytrader.streamer.Client')
@@ -18,18 +28,9 @@ class TestStreamer(unittest.TestCase):
         mock_client.KLINE_INTERVAL_1MINUTE = '1m'
         mock_bm.return_value = self.fake_bm
         mock_bm.return_value.kline_socket.return_value = self.fake_ks
-        fake_streamer = Mock(
-            pair = 'BTCUSDT',
-            timeframe = '1m',
-            log = self.fake_log,
-            run = True,
-            client = self.fake_client,
-            bm = self.fake_bm,
-            ks = self.fake_ks
-        )
         mock_log.config_logger.return_value = self.fake_log
 
-        expected_result = fake_streamer
+        expected_result = self.fake_streamer
         actual_result = streamer.Streamer()
 
         with self.subTest():
@@ -45,4 +46,13 @@ class TestStreamer(unittest.TestCase):
         pass
 
     def test_end_stream(self):
-        pass
+        actual_result = self.streamer.end_stream()
+
+        with self.subTest():
+            self.assertEqual(self.streamer.pair, actual_result.pair)
+            self.assertEqual(self.streamer.timeframe, actual_result.timeframe)
+            self.assertEqual(self.streamer.log, actual_result.log)
+            self.assertEqual(self.streamer.run, actual_result.run)
+            self.assertEqual(self.streamer.client, actual_result.client)
+            self.assertEqual(self.streamer.bm, actual_result.bm)
+            self.assertEqual(self.streamer.ks, actual_result.ks)
