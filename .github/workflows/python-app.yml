@@ -49,6 +49,7 @@ jobs:
         with:
           python-version: "3.9"
 
+  install-depdendencies:
     name: Install dependencies
     steps:
       run: |
