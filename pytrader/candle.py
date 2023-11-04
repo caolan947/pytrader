@@ -10,7 +10,6 @@ class Candle():
         Args:
             message (`dict`): Uncleansed message received from websocket
         """
-
         df = pd.DataFrame(message['k'], index=[0])
 
         df = df.rename(columns={'t': 'Open_time', 'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'T': 'Close_time', 'x': 'Close_flag'})
