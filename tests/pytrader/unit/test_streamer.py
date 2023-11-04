@@ -7,7 +7,9 @@ from pytrader import streamer
 import asyncio
 
 class TestStreamer(asynctest.TestCase):
-    def setUp(self):
+
+    @patch('pytrader.streamer.logger')
+    def setUp(self, mock_log):
         self.fake_log = Mock()
         self.fake_client = Mock()
         self.fake_ks = Mock()
@@ -21,6 +23,8 @@ class TestStreamer(asynctest.TestCase):
             bm = self.fake_bm,
             ks = self.fake_ks
         )
+
+        mock_log.config_logger.return_value = self.fake_log
         self.streamer = streamer.Streamer()
 
     @patch('pytrader.streamer.BinanceSocketManager')
