@@ -1,4 +1,4 @@
 pandas
-binance
+python-binance
 asynctest
 requests
