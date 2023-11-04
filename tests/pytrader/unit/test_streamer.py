@@ -1,12 +1,9 @@
-import unittest
 from unittest.mock import patch, Mock
-import asyncio
 import asynctest
 
 from pytrader import streamer
-import pytrader
 
-import time
+import asyncio
 
 class TestStreamer(asynctest.TestCase):
     def setUp(self):
@@ -50,9 +47,6 @@ class TestStreamer(asynctest.TestCase):
     @patch('pytrader.streamer.Candle')
     @patch.object(streamer.BinanceSocketManager, 'kline_socket')
     def test_start_stream(self, mock_self, mock_c):
-
-        expected_result = "Complete"
-
         mock_self.return_value.__enter__.return_value = Mock()
         mock_c.return_value = Mock()
 
@@ -72,11 +66,4 @@ class TestStreamer(asynctest.TestCase):
         actual_result = self.streamer.end_stream()
 
         with self.subTest():
-            self.assertEqual(self.streamer.pair, actual_result.pair)
-            self.assertEqual(self.streamer.timeframe, actual_result.timeframe)
-            self.assertEqual(self.streamer.log, actual_result.log)
-            self.assertEqual(self.streamer.run, actual_result.run)
-            self.assertEqual(self.streamer.client, actual_result.client)
-            self.assertEqual(self.streamer.bm, actual_result.bm)
-            self.assertEqual(self.streamer.ks, actual_result.ks)
-
+            self.assertFalse(self.streamer.run)

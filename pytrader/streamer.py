@@ -3,7 +3,6 @@ from binance import BinanceSocketManager
 
 from pytrader.candle import Candle
 from pytrader import logger
-import time
 
 class Streamer:
     def __init__(self):
@@ -34,11 +33,10 @@ class Streamer:
         async with self.ks as kscm:
             while self.run:
                 result = await kscm.recv()
-                self.run = False
 
                 c = Candle(result)
 
-                self.log.info(c.to_dict())
+                self.log.info(c.to_dict())            
 
     def end_stream(self):
         """
@@ -47,4 +45,4 @@ class Streamer:
         self.log.info(f"Ending market data stream")
         self.run = False
 
-        return self
+        #return self
