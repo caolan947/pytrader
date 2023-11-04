@@ -12,6 +12,27 @@ on:
 permissions:
   contents: read
 
+jobs:
+  test:
+    name: Install python 3.9
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+
+
+  install-depdendencies:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          python -m pip install --upgrade pip
+
+
 # jobs:
 #   install-dependencies:
 
@@ -38,20 +59,4 @@ permissions:
 #       run: |
 #         pytest
 
-jobs:
-  test:
-    name: Install yython 3.9
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.9"
-
-  install-depdendencies:
-    name: Install dependencies
-    steps:
-      run: |
-        python -m pip install --upgrade pip
 
