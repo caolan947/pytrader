@@ -21,7 +21,7 @@ class TestApp(unittest.TestCase):
             run_until_complete = Mock()
         )
         
-        app.main()
+        app.main('fake_pair', 'fake_timeframe')
 
         with self.subTest():
             self.assertTrue(mock_s.called)
@@ -35,7 +35,7 @@ class TestApp(unittest.TestCase):
 
         mock_loop.side_effect = KeyboardInterrupt()
         
-        app.main()
+        app.main('fake_pair', 'fake_timeframe')
 
         with self.subTest():
             self.assertTrue(mock_s.called)

@@ -17,8 +17,8 @@ class TestStreamer(asynctest.TestCase):
         self.fake_ks = Mock()
         self.fake_bm = Mock()
         self.fake_streamer = Mock(
-            pair = 'BTCUSDT',
-            timeframe = '1m',
+            pair = 'fake_pair',
+            timeframe = 'fake_timeframe',
             log = self.fake_log,
             run = True,
             client = self.fake_client,
@@ -31,7 +31,8 @@ class TestStreamer(asynctest.TestCase):
         mock_bm.return_value = self.fake_bm
         mock_bm.return_value.kline_socket.return_value = self.fake_ks
         mock_log.config_logger.return_value = self.fake_log        
-        self.streamer = streamer.Streamer()
+        self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe')
+
 
     def test___init__(self):
         expected_result = self.fake_streamer

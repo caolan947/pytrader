@@ -5,12 +5,12 @@ from pytrader.candle import Candle
 from pytrader import logger
 
 class Streamer:
-    def __init__(self):
+    def __init__(self, pair, timeframe):
         """
         Stream candle data for a given symbol
         """
-        self.pair = 'BTCUSDT'
-        self.timeframe = Client.KLINE_INTERVAL_1MINUTE        
+        self.pair = pair
+        self.timeframe = timeframe       
         self.run = True
 
         self.log = logger.config_logger()
@@ -44,5 +44,3 @@ class Streamer:
         """
         self.log.info(f"Ending market data stream")
         self.run = False
-
-        #return self
