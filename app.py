@@ -1,12 +1,10 @@
 from pytrader import streamer
 import asyncio
 import argparse
-from binance.client import Client
-
 
 def main(pair, timeframe):
     try:
-        s = streamer.Streamer('BTCUSDT', Client.KLINE_INTERVAL_1MINUTE)
+        s = streamer.Streamer(pair, timeframe)
         loop = asyncio.get_event_loop()
         loop.run_until_complete(s.start_stream()).stream()
 
