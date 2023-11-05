@@ -33,18 +33,9 @@ class TestStreamer(asynctest.TestCase):
         mock_log.config_logger.return_value = self.fake_log        
         self.streamer = streamer.Streamer()
 
-    @patch('pytrader.streamer.BinanceSocketManager')
-    @patch('pytrader.streamer.Client')
-    @patch('pytrader.streamer.logger')
-    def test___init__(self, mock_log, mock_client, mock_bm):
-        mock_client.return_value = self.fake_client
-        mock_client.KLINE_INTERVAL_1MINUTE = '1m'
-        mock_bm.return_value = self.fake_bm
-        mock_bm.return_value.kline_socket.return_value = self.fake_ks
-        mock_log.config_logger.return_value = self.fake_log
-
+    def test___init__(self):
         expected_result = self.fake_streamer
-        actual_result = streamer.Streamer()
+        actual_result = self.streamer
 
         with self.subTest():
             self.assertEqual(expected_result.pair, actual_result.pair)
@@ -74,9 +65,8 @@ class TestStreamer(asynctest.TestCase):
         with self.subTest():
             self.assertTrue(mock_c.is_called)
 
-    @unittest.skip
     def test_end_stream(self):
-        actual_result = self.streamer.end_stream()
+        self.streamer.end_stream()
 
         with self.subTest():
             self.assertFalse(self.streamer.run)
