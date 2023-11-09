@@ -17,13 +17,31 @@ class SqlController():
         print("connected")
 
     def insert(self, table, attributes, values):
-        statement = f"INSERT INTO {table} ({attributes}) VALUES ({values})"
+        statement = f"""
+            INSERT INTO {table} 
+                    ({attributes})
+                VALUES 
+                    ({values})
+        """
 
         result = self.cursor.execute(statement)
 
         cursor = self.cursor.commit()
 
         print("inserted")
+
+    def update(self, table, attributes, id):
+        statement = f"""
+            UPDATE {table}
+                SET {attributes}
+            WHERE id = '{id}'
+        """
+
+        result = self.cursor.execute(statement)
+
+        cursor = self.cursor.commit()
+
+        print("updated")
     
     def close_cursor(self):
         cursor = self.cursor.close()
