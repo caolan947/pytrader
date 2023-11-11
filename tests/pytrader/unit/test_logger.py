@@ -20,7 +20,7 @@ class TestLogger(unittest.TestCase):
         mock_handler.FileHandler.return_value = fake_formatter
         mock_handler.getLogger.return_value = fake_logger
 
-        expected_result = fake_logger
+        expected_result = (fake_logger, '2023-01-01_00-00-00.log')
 
         actual_result = logger.config_logger()
 

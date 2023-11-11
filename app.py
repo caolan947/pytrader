@@ -8,10 +8,10 @@ def main():
 
     log, file_name = logger.config_logger()
 
-    argParser = argparse.ArgumentParser()
-    argParser.add_argument("-p", "--pair", help="Trading pair to stream")
-    argParser.add_argument("-t", "--timeframe", help="Timeframe for candles data")
-    args = argParser.parse_args()
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("-p", "--pair", help="Trading pair to stream")
+    arg_parser.add_argument("-t", "--timeframe", help="Timeframe for candles data")
+    args = arg_parser.parse_args()
 
     try:
         print(f"Starting live market data stream for {args.pair} using a {args.timeframe} timeframe")

@@ -1,7 +1,7 @@
 from binance.client import Client
 from binance import BinanceSocketManager
 import uuid
-from pytrader.sql_handler import SqlController
+from pytrader import sql_handler
 import config
 
 from pytrader.candle import Candle
@@ -11,19 +11,19 @@ class Streamer:
         """
         Stream candle data for a given symbol
         """
+        log.info(f"Setting up market data streamer")
+
         self.pair = pair
         self.timeframe = timeframe
         self.log = log
         self.file_name = file_name
         self.run = True
         
-        self.log.info(f"Setting up market data streamer")
-
         self.stream_id = uuid.uuid4()
         self.log.info(f"Stream ID {self.stream_id}")#
 
         self.log.info(f"Creating database client")
-        self.db = SqlController(
+        self.db = sql_handler.SqlController(
             config.creds['driver'],
             config.creds['server'],
             config.creds['database'],
