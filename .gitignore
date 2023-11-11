@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 # Local debugging
-runner.py
+run.py
+config.py
