@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
 
-import io
-
 from pytrader import sql_handler
 
 class TestSqlHandler(unittest.TestCase):
