@@ -25,23 +25,31 @@ class SqlController():
         return statement
 
     def form_update_statement(self, table, attributes, id):
-        statement = f"""UPDATE {table} SET {attributes} WHERE id = '{id}'"""
+        statement = f"UPDATE {table} SET {attributes} WHERE id = '{id}'"
 
         return statement
 
     def execute_statement(self, statement):
         print(f"Executing statement {statement}")
-        result = self.cursor.execute(statement)
+        self.cursor.execute(statement)
 
         print(f"Committing change to insert {self.cursor.rowcount} row(s)")
-        cursor = self.cursor.commit()
-    
+        self.cursor.commit()
+
     def close_cursor(self):
         print(f"Closing cursor")
-        cursor = self.cursor.close()
+        self.cursor.close()
 
     def db_write_start_stream(self, stream_id):
-        result = self.execute_statement(self.form_insert_statement("stream", "id,start_time,log_filename,pair,timeframe", f"'{stream_id}', CURRENT_TIMESTAMP, '{self.file_name}', '{self.pair}', '{self.timeframe}'"))
+        try:
+            self.execute_statement(self.form_insert_statement("stream", "id,start_time,log_filename,pair,timeframe", f"'{stream_id}', CURRENT_TIMESTAMP, '{self.file_name}', '{self.pair}', '{self.timeframe}'"))
+
+        except Exception as e:
+            print(f"Failed to write start stream to database and caught exception {repr(e)}")
 
     def db_write_end_stream(self, stream_id):
-        result = self.execute_statement(self.form_update_statement("stream", "end_time=CURRENT_TIMESTAMP", f"{stream_id}"))
+        try:
+            self.execute_statement(self.form_update_statement("stream", "end_time=CURRENT_TIMESTAMP", f"{stream_id}"))
+        
+        except Exception as e:
+            print(f"Failed to write end stream to database and caught exception {repr(e)}")
