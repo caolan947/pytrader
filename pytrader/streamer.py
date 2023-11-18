@@ -2,13 +2,12 @@ from binance.client import Client
 from binance import BinanceSocketManager
 import uuid
 from pytrader import sql_handler
-import config
-import uuid
 
 from pytrader.candle import Candle
+from pytrader import conditions
 
 class Streamer:
-    def __init__(self, pair, timeframe, log, file_name, open_condition, close_condition):
+    def __init__(self, pair, timeframe, log, file_name, config):
         """
         Stream candle data for a given symbol
         """
@@ -18,22 +17,23 @@ class Streamer:
         self.timeframe = timeframe
         self.log = log
         self.file_name = file_name
-        self.open_condition = open_condition
-        self.close_condition = close_condition
+        self.config = config
+        self.open_condition = conditions.trade_open_condition
+        self.close_condition = conditions.trade_close_condition
 
         self.run = True
         self.trade_open = False
         
         self.stream_id = uuid.uuid4()
-        self.log.info(f"Stream ID {self.stream_id}")#
+        self.log.info(f"Stream ID {self.stream_id}")
 
         self.log.info(f"Creating database client")
         self.db = sql_handler.SqlController(
-            config.creds['driver'],
-            config.creds['server'],
-            config.creds['database'],
-            config.creds['username'],
-            config.creds['password'],
+            config['database']['credentials']['driver'],
+            config['database']['credentials']['server'],
+            config['database']['credentials']['database'],
+            config['database']['credentials']['username'],
+            config['database']['credentials']['password'],
             pair,
             timeframe,
             file_name,
