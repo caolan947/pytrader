@@ -1,0 +1,7 @@
+database:
+  credentials:
+    driver: ODBC Driver 17 for SQL Server
+    server: LAPTOP-7P929I4I\SQLEXPRESS
+    database: pytrader_db_dev
+    username: pytrader-sa
+    password: 37f0fad9-d6ba-4fb6-8d9d-75080b1d3743
