@@ -1,8 +1,6 @@
 from datetime import datetime
 import pandas as pd
 
-# TODO add bool check in __init__() on close_flag and execute new function
-# db_write_closed_candle() to write kline data to database
 
 class Candle():
     """
@@ -17,15 +15,13 @@ class Candle():
 
         df = df.rename(columns={'t': 'Open_time', 'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'T': 'Close_time', 'x': 'Close_flag'})
         df['Stream_time'] = datetime.fromtimestamp(message['E'] / 1e3)
-        df['Open_time'] = pd.to_datetime(df['Open_time'], unit='ms')
-        df['Open_time'] = df['Open_time'].dt.strftime('%Y-%m-%dT%H:%M:%S')
+        df['Open_time'] = pd.to_datetime(df['Open_time'], unit='ms').dt.strftime('%Y-%m-%dT%H:%M:%S')
         df['Open'] = pd.to_numeric(df['Open'])
         df['High'] = pd.to_numeric(df['High'])
         df['Low'] = pd.to_numeric(df['Low'])
         df['Close'] = pd.to_numeric(df['Close'])
-        df['Close_time'] = pd.to_datetime(df['Close_time'], unit='ms')
-        df['Close_time'] = df['Close_time'].dt.strftime('%Y-%m-%dT%H:%M:%S')
-        
+        df['Close_time'] = pd.to_datetime(df['Close_time'], unit='ms').dt.strftime('%Y-%m-%dT%H:%M:%S')
+
         df = df.iloc[0]
 
         self.open = df['Open']
