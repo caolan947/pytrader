@@ -144,8 +144,46 @@ class TestSqlHandler(unittest.TestCase):
             self.assertEqual(mock_execute.called, 1)
 
         mock_execute.side_effect = self.generic_exception
-        self.sql_controller.db_write_end_stream('fake_id')
+        self.sql_controller.db_write_closed_candle(self.fake_candle)
 
         with self.subTest():
-            mock_print.assert_called_with(f"Failed to write end stream to database and caught exception Exception('Some error')") 
+            mock_print.assert_called_with(f"Failed to write close candle to database and caught exception Exception('Some error')") 
+
+    @patch('builtins.print')
+    @patch.object(sql_handler.SqlController, 'execute_statement')
+    @patch.object(sql_handler.SqlController, 'form_insert_statement')
+    def test_db_write_open_trade(self, mock_statement, mock_execute, mock_print):
+        mock_statement.return_value = 'INSERT INTO fake_table (attr1, attr2) VALUES ("val1", "val2")'
+        mock_execute.return_value = Mock()
+
+        self.sql_controller.db_write_open_trade(self.fake_candle, 'fake_id')
+
+        with self.subTest():
+            self.assertEqual(mock_statement.called, 1)
+            self.assertEqual(mock_execute.called, 1)
+
+        mock_execute.side_effect = self.generic_exception
+        self.sql_controller.db_write_open_trade(self.fake_candle, 'fake_id')
+
+        with self.subTest():
+            mock_print.assert_called_with(f"Failed to write open trade to database and caught exception Exception('Some error')") 
     
+    @patch('builtins.print')
+    @patch.object(sql_handler.SqlController, 'execute_statement')
+    @patch.object(sql_handler.SqlController, 'form_update_statement')
+    def test_db_write_close_trade(self, mock_statement, mock_execute, mock_print):
+        mock_statement.return_value = "UPDATE fake_table SET attr1='val1', attr2='val2' WHERE id = 'fake_id'"
+        mock_execute.return_value = Mock()
+
+        self.sql_controller.db_write_close_trade(self.fake_candle, 'fake_id')
+
+        with self.subTest():
+            self.assertEqual(mock_statement.called, 1)
+            self.assertEqual(mock_execute.called, 1)
+
+        mock_execute.side_effect = self.generic_exception
+        self.sql_controller.db_write_close_trade(self.fake_candle, 'fake_id')
+
+        with self.subTest():
+            mock_print.assert_called_with(f"Failed to write close trade to database and caught exception Exception('Some error')") 
+ 

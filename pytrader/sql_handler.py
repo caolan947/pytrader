@@ -57,7 +57,21 @@ class SqlController():
 
     def db_write_closed_candle(self, candle):
         try:
-            self.execute_statement(self.form_insert_statement("candle", "id,stream_id,open_time,open_price,high_price,low_price,close_price,close_time", f"'{candle.stream_id}', '{uuid.uuid4()}', '{candle.open_time}', '{candle.open}', '{candle.high}', '{candle.low}', '{candle.close}', '{candle.close_time}'"))
+            self.execute_statement(self.form_insert_statement("candle", "id,stream_id,open_time,open_price,high_price,low_price,close_price,close_time", f"'{candle.id}', '{candle.stream_id}', '{candle.open_time}', '{candle.open}', '{candle.high}', '{candle.low}', '{candle.close}', '{candle.close_time}'"))
 
         except Exception as e:
-            print(f"Failed to write start stream to database and caught exception {repr(e)}")
+            print(f"Failed to write close candle to database and caught exception {repr(e)}")
+
+    def db_write_open_trade(self, candle, trade_id):
+        try:
+            self.execute_statement(self.form_insert_statement("trade", "id,open_candle_id,amount1,amount2,status", f"'{trade_id}', '{candle.id}', 1.0, 1.0, 'Open'"))
+
+        except Exception as e:
+            print(f"Failed to write open trade to database and caught exception {repr(e)}")
+
+    def db_write_close_trade(self, candle, trade_id):
+        try:
+            self.execute_statement(self.form_update_statement("trade", f"close_candle_id = '{candle.id}',close_price = {candle.close},close_timestamp = '{candle.close_time}',status = 'Closed',profit = 1.0", f"{trade_id}"))
+        
+        except Exception as e:
+            print(f"Failed to write close trade to database and caught exception {repr(e)}")
