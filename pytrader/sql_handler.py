@@ -17,7 +17,7 @@ class SqlController():
         self.conn_string = 'DRIVER={'+self.driver+'};SERVER='+self.server+';DATABASE='+self.database+';UID='+self.username+';PWD='+self.password
         self.conn = pyodbc.connect(self.conn_string)
 
-        print(f"Creating cursor for {self.database}")
+        self.log.info(f"Creating cursor for {self.database}")
         self.cursor = self.conn.cursor()
 
     def form_insert_statement(self, table, attributes, values):
@@ -31,14 +31,14 @@ class SqlController():
         return statement
 
     def execute_statement(self, statement):
-        print(f"Executing statement {statement}")
+        self.log.info(f"Executing statement {statement}")
         self.cursor.execute(statement)
 
-        print(f"Committing change to {self.cursor.rowcount} row(s)")
+        self.log.info(f"Committing change to {self.cursor.rowcount} row(s)")
         self.cursor.commit()
 
     def close_cursor(self):
-        print(f"Closing cursor")
+        self.log.info(f"Closing cursor")
         self.cursor.close()
 
     def db_write_start_stream(self, stream_id):
