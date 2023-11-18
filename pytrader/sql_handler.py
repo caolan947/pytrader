@@ -17,7 +17,7 @@ class SqlController():
         self.conn_string = 'DRIVER={'+self.driver+'};SERVER='+self.server+';DATABASE='+self.database+';UID='+self.username+';PWD='+self.password
         self.conn = pyodbc.connect(self.conn_string)
 
-        print(f"Creating cursor for {self.database}")
+        self.log.info(f"Creating cursor for {self.database}")
         self.cursor = self.conn.cursor()
 
     def form_insert_statement(self, table, attributes, values):
@@ -31,14 +31,14 @@ class SqlController():
         return statement
 
     def execute_statement(self, statement):
-        print(f"Executing statement {statement}")
+        self.log.info(f"Executing statement {statement}")
         self.cursor.execute(statement)
 
-        print(f"Committing change to {self.cursor.rowcount} row(s)")
+        self.log.info(f"Committing change to {self.cursor.rowcount} row(s)")
         self.cursor.commit()
 
     def close_cursor(self):
-        print(f"Closing cursor")
+        self.log.info(f"Closing cursor")
         self.cursor.close()
 
     def db_write_start_stream(self, stream_id):
@@ -46,18 +46,18 @@ class SqlController():
             self.execute_statement(self.form_insert_statement("stream", "id,start_time,log_filename,pair,timeframe", f"'{stream_id}', CURRENT_TIMESTAMP, '{self.file_name}', '{self.pair}', '{self.timeframe}'"))
 
         except Exception as e:
-            print(f"Failed to write start stream to database and caught exception {repr(e)}")
+            self.log.info(f"Failed to write start stream to database and caught exception {repr(e)}")
 
     def db_write_end_stream(self, stream_id):
         try:
             self.execute_statement(self.form_update_statement("stream", "end_time=CURRENT_TIMESTAMP", f"{stream_id}"))
         
         except Exception as e:
-            print(f"Failed to write end stream to database and caught exception {repr(e)}")
+            self.log.info(f"Failed to write end stream to database and caught exception {repr(e)}")
 
     def db_write_closed_candle(self, candle):
         try:
             self.execute_statement(self.form_insert_statement("candle", "id,stream_id,open_time,open_price,high_price,low_price,close_price,close_time", f"'{candle.stream_id}', '{uuid.uuid4()}', '{candle.open_time}', '{candle.open}', '{candle.high}', '{candle.low}', '{candle.close}', '{candle.close_time}'"))
 
         except Exception as e:
-            print(f"Failed to write start stream to database and caught exception {repr(e)}")
+            self.log.info(f"Failed to write start stream to database and caught exception {repr(e)}")
