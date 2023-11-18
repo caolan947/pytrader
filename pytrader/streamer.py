@@ -7,7 +7,7 @@ import config
 from pytrader.candle import Candle
 
 class Streamer:
-    def __init__(self, pair, timeframe, log, file_name):
+    def __init__(self, pair, timeframe, log, file_name, open_condition, close_condition):
         """
         Stream candle data for a given symbol
         """
@@ -17,7 +17,11 @@ class Streamer:
         self.timeframe = timeframe
         self.log = log
         self.file_name = file_name
+        self.open_condition = open_condition
+        self.close_condition = close_condition
+
         self.run = True
+        self.trade_open = False
         
         self.stream_id = uuid.uuid4()
         self.log.info(f"Stream ID {self.stream_id}")#
@@ -57,6 +61,16 @@ class Streamer:
                 result = await kscm.recv()
 
                 c = Candle(result, self.db, self.stream_id)
+                
+                if not self.trade_open and c.close_flag:
+                    if self.open_condition(c):
+                        print("Trade open")
+                        self.trade_open = True
+
+                elif self.trade_open and c.close_flag:
+                    if self.close_condition(c):
+                        print("Trade close")
+                        self.trade_open = False                    
 
                 self.log.info(c.to_dict())
 
@@ -68,4 +82,3 @@ class Streamer:
         self.db.db_write_end_stream(self.stream_id)
         self.db.close_cursor()
         self.run = False
-

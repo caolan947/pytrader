@@ -2,6 +2,7 @@ from pytrader import streamer
 import asyncio
 import argparse
 from pytrader import logger
+import config
 
 def main():
     print("START")
@@ -16,7 +17,7 @@ def main():
     try:
         print(f"Starting live market data stream for {args.pair} using a {args.timeframe} timeframe")
 
-        s = streamer.Streamer(args.pair, args.timeframe, log, file_name)
+        s = streamer.Streamer(args.pair, args.timeframe, log, file_name, config.trade_open_condition, config.trade_close_condition)
         loop = asyncio.get_event_loop()
         loop.run_until_complete(s.start_stream()).stream()
 
