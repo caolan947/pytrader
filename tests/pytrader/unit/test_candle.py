@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 
 from pytrader import candle
 
@@ -31,17 +32,22 @@ class TestCandle(unittest.TestCase):
             }
         }
 
+        self.fake_db = Mock(db_write_closed_candle = Mock())
+        self.fake_stream_id = '123456789'
+
         self.fake_candle = {
             'open': 1.5,
             'close': 2.0,
             'high': 2.5,
             'low': 1.0,
-            'open_time': datetime(2023, 11, 3, 20, 38, 0),
-            'close_time': datetime(2023, 11, 3, 20, 38, 59, 999000),
-            'close_flag': False
+            'open_time': '2023-11-03T20:38:00',
+            'close_time': '2023-11-03T20:38:59',
+            'close_flag': False,
+            'db': self.fake_db,
+            'stream_id': self.fake_stream_id
         }
 
-        self.candle = candle.Candle(self.fake_message)
+        self.candle = candle.Candle(self.fake_message, self.fake_db, self.fake_stream_id)
 
     def test___init__(self):
         expected_result = self.fake_candle
@@ -56,6 +62,8 @@ class TestCandle(unittest.TestCase):
             self.assertEqual(expected_result['open_time'], actual_result.open_time)
             self.assertEqual(expected_result['close_time'], actual_result.close_time)
             self.assertFalse(actual_result.close_flag)
+            self.assertEqual(expected_result['db'], actual_result.db)
+            self.assertEqual(expected_result['stream_id'], actual_result.stream_id)
 
     def test_to_dict(self):
         expected_result = self.fake_candle
@@ -64,3 +72,10 @@ class TestCandle(unittest.TestCase):
 
         with self.subTest():
             self.assertEqual(expected_result, actual_result)
+
+    def test_on_close(self):
+
+        self.candle.on_close()
+
+        with self.subTest():
+            self.assertEqual(1, self.fake_db.db_write_closed_candle.call_count)
