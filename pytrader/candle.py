@@ -1,11 +1,14 @@
 from datetime import datetime
 import pandas as pd
 
+# TODO add bool check in __init__() on close_flag and execute new function
+# db_write_closed_candle() to write kline data to database
+
 class Candle():
     """
     An object representing a chart candle.
     """
-    def __init__(self, message):
+    def __init__(self, message, db, stream_id):
         """
         Args:
             message (`dict`): Uncleansed message received from websocket
@@ -15,12 +18,14 @@ class Candle():
         df = df.rename(columns={'t': 'Open_time', 'o': 'Open', 'h': 'High', 'l': 'Low', 'c': 'Close', 'T': 'Close_time', 'x': 'Close_flag'})
         df['Stream_time'] = datetime.fromtimestamp(message['E'] / 1e3)
         df['Open_time'] = pd.to_datetime(df['Open_time'], unit='ms')
+        df['Open_time'] = df['Open_time'].dt.strftime('%Y-%m-%dT%H:%M:%S')
         df['Open'] = pd.to_numeric(df['Open'])
         df['High'] = pd.to_numeric(df['High'])
         df['Low'] = pd.to_numeric(df['Low'])
         df['Close'] = pd.to_numeric(df['Close'])
         df['Close_time'] = pd.to_datetime(df['Close_time'], unit='ms')
-
+        df['Close_time'] = df['Close_time'].dt.strftime('%Y-%m-%dT%H:%M:%S')
+        
         df = df.iloc[0]
 
         self.open = df['Open']
@@ -31,6 +36,12 @@ class Candle():
         self.close_time = df['Close_time']
         self.close_flag = df['Close_flag']
 
+        self.db = db
+        self.stream_id = stream_id
+
+        if self.close_flag:
+            self.on_close()
+
     def to_dict(self):
         """
         Return `Candle` object as a `dict`
@@ -39,3 +50,6 @@ class Candle():
             `dict`: `dict` containing the attributes of the `Candle` class 
         """
         return vars(self)
+    
+    def on_close(self):
+        self.db.db_write_closed_candle(self)

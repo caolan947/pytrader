@@ -1,4 +1,5 @@
 import pyodbc
+import uuid
 
 class SqlController():
 
@@ -33,7 +34,7 @@ class SqlController():
         print(f"Executing statement {statement}")
         self.cursor.execute(statement)
 
-        print(f"Committing change to insert {self.cursor.rowcount} row(s)")
+        print(f"Committing change to {self.cursor.rowcount} row(s)")
         self.cursor.commit()
 
     def close_cursor(self):
@@ -53,3 +54,10 @@ class SqlController():
         
         except Exception as e:
             print(f"Failed to write end stream to database and caught exception {repr(e)}")
+
+    def db_write_closed_candle(self, candle):
+        try:
+            self.execute_statement(self.form_insert_statement("candle", "id,stream_id,open_time,open_price,high_price,low_price,close_price,close_time", f"'{candle.stream_id}', '{uuid.uuid4()}', '{candle.open_time}', '{candle.open}', '{candle.high}', '{candle.low}', '{candle.close}', '{candle.close_time}'"))
+
+        except Exception as e:
+            print(f"Failed to write start stream to database and caught exception {repr(e)}")

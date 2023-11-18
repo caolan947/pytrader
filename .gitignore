@@ -162,4 +162,3 @@ cython_debug/
 # Local debugging
 run.py
 config.py
-config.py
