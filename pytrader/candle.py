@@ -1,5 +1,6 @@
 from datetime import datetime
 import pandas as pd
+import uuid
 
 
 class Candle():
@@ -34,6 +35,7 @@ class Candle():
 
         self.db = db
         self.stream_id = stream_id
+        self.id = uuid.uuid4()
 
         if self.close_flag:
             self.on_close()
