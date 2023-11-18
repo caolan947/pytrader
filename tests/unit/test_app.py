@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, Mock
 
 import asyncio
+import config
 
 import app
 
@@ -22,13 +23,16 @@ class TestApp(unittest.TestCase):
             run_until_complete = Mock()
         )
 
+    @patch('app.config')
     @patch.object(asyncio, 'get_event_loop')
     @patch('pytrader.streamer.Streamer')
     @patch.object(argparse.ArgumentParser, 'parse_args')
     @patch.object(argparse.ArgumentParser, 'add_argument')
     @patch.object(pytrader.logger, 'config_logger')
-    def test_main(self, mock_log, mock_arg_parser, mock_args, mock_s, mock_loop):
+    def test_main(self, mock_log, mock_arg_parser, mock_args, mock_s, mock_loop, mock_open):
 
+        mock_open.trade_open_condition.return_value = True
+        mock_open.trade_close_condition.return_value = True
         mock_log.return_value = (self.fake_log, self.fake_file_name)
         mock_arg_parser.return_value = self.fake_arg_parser
         mock_args.return_value = self.fake_args

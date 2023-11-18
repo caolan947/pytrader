@@ -37,7 +37,7 @@ class TestStreamer(asynctest.TestCase):
         mock_client.KLINE_INTERVAL_1MINUTE = '1m'
         mock_bm.return_value = self.fake_bm
         mock_bm.return_value.kline_socket.return_value = self.fake_ks
-        self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe', self.fake_log, 'fake_file_name')
+        self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe', self.fake_log, 'fake_file_name', True, True)
 
     def test___init__(self):
         expected_result = self.fake_streamer
