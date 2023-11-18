@@ -56,7 +56,7 @@ class Streamer:
             while self.run:
                 result = await kscm.recv()
 
-                c = Candle(result)
+                c = Candle(result, self.db, self.stream_id)
 
                 self.log.info(c.to_dict())
 
