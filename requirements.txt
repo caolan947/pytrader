@@ -3,3 +3,4 @@ python-binance
 asynctest
 requests
 pyodbc
+PyYAML

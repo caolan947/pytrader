@@ -1,23 +1,40 @@
 import unittest
 from unittest.mock import patch, Mock
 import asynctest
-
 from pytrader import streamer
-
 import asyncio
 
 class TestStreamer(asynctest.TestCase):
 
+    @patch('pytrader.streamer.conditions')
     @patch('pytrader.streamer.sql_handler')
     @patch('pytrader.streamer.BinanceSocketManager')
     @patch('pytrader.streamer.Client')
     @patch('pytrader.streamer.uuid')
-    def setUp(self, mock_stream_id, mock_client, mock_bm, mock_db):
+    def setUp(self, mock_stream_id, mock_client, mock_bm, mock_db, mock_conditions):
         self.fake_log = Mock()
         self.fake_client = Mock()
         self.fake_ks = Mock()
         self.fake_bm = Mock()
         self.fake_db = Mock(db_write_end_stream = Mock(), close_cursor = Mock())
+        self.fake_open_condition = Mock()
+        self.fake_close_condition = Mock()
+
+        self.fake_config = {
+            'database': {
+                'credentials': {
+                    'driver': 'fake_driver',
+                    'server': 'fake_server',
+                    'database': 'fake_database',
+                    'username': 'fake_username',
+                    'password': 'fake_password'
+                }
+            }
+        }
+
+        mock_conditions.trade_open_condition = self.fake_open_condition
+        mock_conditions.trade_close_condition = self.fake_close_condition
+        
         self.fake_streamer = Mock(
             pair = 'fake_pair',
             timeframe = 'fake_timeframe',
@@ -28,7 +45,10 @@ class TestStreamer(asynctest.TestCase):
             db = self.fake_db,
             client = self.fake_client,
             bm = self.fake_bm,
-            ks = self.fake_ks
+            ks = self.fake_ks,
+            config = self.fake_config,
+            open_condition = self.fake_open_condition,
+            close_condition = self.fake_close_condition
         )
 
         mock_stream_id.uuid4.return_value = 'fake_uuid'
@@ -37,7 +57,7 @@ class TestStreamer(asynctest.TestCase):
         mock_client.KLINE_INTERVAL_1MINUTE = '1m'
         mock_bm.return_value = self.fake_bm
         mock_bm.return_value.kline_socket.return_value = self.fake_ks
-        self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe', self.fake_log, 'fake_file_name', True, True)
+        self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe', self.fake_log, 'fake_file_name', self.fake_config)
 
     def test___init__(self):
         expected_result = self.fake_streamer
@@ -54,6 +74,11 @@ class TestStreamer(asynctest.TestCase):
             self.assertEqual(expected_result.client, actual_result.client)
             self.assertEqual(expected_result.bm, actual_result.bm)
             self.assertEqual(expected_result.ks, actual_result.ks)
+            self.assertEqual(expected_result.ks, actual_result.ks)
+            self.assertEqual(expected_result.ks, actual_result.ks)
+            self.assertEqual(expected_result.config, actual_result.config)
+            self.assertEqual(expected_result.open_condition, actual_result.open_condition)
+            self.assertEqual(expected_result.close_condition, actual_result.close_condition)
 
     @unittest.skip
     @patch('pytrader.streamer.Candle')
