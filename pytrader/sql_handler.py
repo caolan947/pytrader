@@ -71,7 +71,29 @@ class SqlController():
 
     def db_write_close_trade(self, candle, trade_id):
         try:
-            self.execute_statement(self.form_update_statement("trade", f"close_candle_id = '{candle.id}',close_price = {candle.close},close_timestamp = '{candle.close_time}',status = 'Closed',profit = 1.0", f"{trade_id}"))
-        
+            statement = f"""
+            DECLARE @trade_id AS VARCHAR(100)
+                SET @trade_id = '{trade_id}'
+
+                UPDATE trade
+                    SET 
+                    	close_candle_id = '{candle.id}',
+                        close_price = '{candle.close}',
+                        close_timestamp = '{candle.close_time}',
+                        status = 'Closed',
+                        profit = (
+                            SELECT candle_open.close_price - '{candle.close}' as profit
+                                FROM trade
+                                    LEFT JOIN candle candle_open ON trade.open_candle_id = candle_open.id
+                                    LEFT JOIN candle candle_close ON trade.close_candle_id = candle_close.id
+                                
+                                WHERE trade.id = @trade_id
+                        )
+
+                    WHERE id = @trade_id
+            """
+
+            self.execute_statement(statement)
+
         except Exception as e:
             print(f"Failed to write close trade to database and caught exception {repr(e)}")

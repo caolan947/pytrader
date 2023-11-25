@@ -170,15 +170,12 @@ class TestSqlHandler(unittest.TestCase):
     
     @patch('builtins.print')
     @patch.object(sql_handler.SqlController, 'execute_statement')
-    @patch.object(sql_handler.SqlController, 'form_update_statement')
-    def test_db_write_close_trade(self, mock_statement, mock_execute, mock_print):
-        mock_statement.return_value = "UPDATE fake_table SET attr1='val1', attr2='val2' WHERE id = 'fake_id'"
+    def test_db_write_close_trade(self, mock_execute, mock_print):
         mock_execute.return_value = Mock()
 
         self.sql_controller.db_write_close_trade(self.fake_candle, 'fake_id')
 
         with self.subTest():
-            self.assertEqual(mock_statement.called, 1)
             self.assertEqual(mock_execute.called, 1)
 
         mock_execute.side_effect = self.generic_exception
