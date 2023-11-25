@@ -19,15 +19,17 @@ class TestApp(unittest.TestCase):
             run_until_complete = Mock()
         )
 
+    @patch('builtins.open')
     @patch('app.yaml')
     @patch.object(asyncio, 'get_event_loop')
     @patch('pytrader.streamer.Streamer')
     @patch.object(argparse.ArgumentParser, 'parse_args')
     @patch.object(argparse.ArgumentParser, 'add_argument')
     @patch.object(pytrader.logger, 'config_logger')
-    def test_main(self, mock_log, mock_arg_parser, mock_args, mock_s, mock_loop, mock_config):
+    def test_main(self, mock_log, mock_arg_parser, mock_args, mock_s, mock_loop, mock_config, mock_open):
 
-        mock_config.safe_load.return_value.open.return_value = Mock()
+        mock_open.return_value = Mock()
+        mock_config.safe_load.return_value = Mock()
         mock_log.return_value = (self.fake_log, self.fake_file_name)
         mock_arg_parser.return_value = self.fake_arg_parser
         mock_args.return_value = self.fake_args
