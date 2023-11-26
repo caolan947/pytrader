@@ -61,27 +61,33 @@ class Streamer:
             while self.run:
                 result = await kscm.recv()
 
-                c = Candle(result, self.db, self.stream_id)
+                self.candle = Candle(result, self.db, self.stream_id)
                 
-                if not self.trade_open and c.close_flag:
-                    if self.open_condition(c):
+                if not self.trade_open and self.candle.close_flag:
+                    if self.open_condition(self.candle):
                         self.trade_id = uuid.uuid4()
-                        self.db.db_write_open_trade(c, self.trade_id)
+                        self.db.db_write_open_trade(self.candle, self.trade_id)
                         self.trade_open = True
 
-                elif self.trade_open and c.close_flag:
-                    if self.close_condition(c):
-                        self.db.db_write_close_trade(c, self.trade_id)
+                elif self.trade_open and self.candle.close_flag:
+                    if self.close_condition(self.candle):
+                        self.db.db_write_close_trade(self.candle, self.trade_id)
                         self.trade_open = False
                         self.trade_id = None                
 
-                self.log.info(c.to_dict())
+                self.log.info(self.candle.to_dict())
 
     def end_stream(self):
         """
         Finish streaming and logging candle data
         """
         self.log.info(f"Ending market data stream")
+        if self.trade_open:
+            self.candle.on_error()
+            self.db.db_write_close_trade(self.candle, self.trade_id)
+            self.trade_open = False
+            self.trade_id = None   
+
         self.db.db_write_end_stream(self.stream_id)
         self.db.close_cursor()
         self.run = False

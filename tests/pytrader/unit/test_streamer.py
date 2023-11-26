@@ -6,19 +6,21 @@ import asyncio
 
 class TestStreamer(asynctest.TestCase):
 
+    @patch.object(streamer.Candle, 'on_error')
     @patch('pytrader.streamer.conditions')
     @patch('pytrader.streamer.sql_handler')
     @patch('pytrader.streamer.BinanceSocketManager')
     @patch('pytrader.streamer.Client')
     @patch('pytrader.streamer.uuid')
-    def setUp(self, mock_stream_id, mock_client, mock_bm, mock_db, mock_conditions):
+    def setUp(self, mock_stream_id, mock_client, mock_bm, mock_db, mock_conditions, mock_candle):
         self.fake_log = Mock()
         self.fake_client = Mock()
         self.fake_ks = Mock()
         self.fake_bm = Mock()
-        self.fake_db = Mock(db_write_end_stream = Mock(), close_cursor = Mock())
+        self.fake_db = Mock(db_write_end_stream = Mock(), close_cursor = Mock(), db_write_close_trade = Mock())
         self.fake_open_condition = Mock()
         self.fake_close_condition = Mock()
+        self.fake_candle = Mock()
 
         self.fake_config = {
             'database': {
@@ -34,7 +36,7 @@ class TestStreamer(asynctest.TestCase):
 
         mock_conditions.trade_open_condition = self.fake_open_condition
         mock_conditions.trade_close_condition = self.fake_close_condition
-        
+
         self.fake_streamer = Mock(
             pair = 'fake_pair',
             timeframe = 'fake_timeframe',
@@ -48,7 +50,8 @@ class TestStreamer(asynctest.TestCase):
             ks = self.fake_ks,
             config = self.fake_config,
             open_condition = self.fake_open_condition,
-            close_condition = self.fake_close_condition
+            close_condition = self.fake_close_condition,
+            candle = self.fake_candle
         )
 
         mock_stream_id.uuid4.return_value = 'fake_uuid'
@@ -57,7 +60,10 @@ class TestStreamer(asynctest.TestCase):
         mock_client.KLINE_INTERVAL_1MINUTE = '1m'
         mock_bm.return_value = self.fake_bm
         mock_bm.return_value.kline_socket.return_value = self.fake_ks
+        mock_candle.return_value = self.fake_candle
+
         self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe', self.fake_log, 'fake_file_name', self.fake_config)
+        self.streamer.candle = mock_candle
 
     def test___init__(self):
         expected_result = self.fake_streamer
@@ -104,3 +110,14 @@ class TestStreamer(asynctest.TestCase):
 
         with self.subTest():
             self.assertFalse(self.streamer.run)
+
+        self.streamer.trade_id = '123456789'
+        self.streamer.trade_open = True
+
+        self.streamer.end_stream()
+
+        with self.subTest():
+            self.assertFalse(self.streamer.run)
+            self.assertIsNone(self.streamer.trade_id)
+            self.assertFalse(self.streamer.trade_open)
+            self.assertEqual(self.fake_db.db_write_close_trade.call_count, 1)
