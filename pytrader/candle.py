@@ -51,3 +51,6 @@ class Candle():
     
     def on_close(self):
         self.db.db_write_closed_candle(self)
+
+    def on_error(self):
+        self.db.db_write_closed_candle(self)

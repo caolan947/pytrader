@@ -85,3 +85,10 @@ class TestCandle(unittest.TestCase):
 
         with self.subTest():
             self.assertEqual(1, self.fake_db.db_write_closed_candle.call_count)
+
+    def test_on_error(self):
+
+        self.candle.on_error()
+
+        with self.subTest():
+            self.assertEqual(1, self.fake_db.db_write_closed_candle.call_count)
