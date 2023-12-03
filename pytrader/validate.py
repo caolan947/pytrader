@@ -6,11 +6,12 @@ class Validater:
 
         self._valid_timeframes = ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']
         
-        r = requests.get("https://api3.binance.com/api/v3/ticker/price")
-        df = pd.DataFrame(r.json())
-        df.drop(df[~df.symbol.str.contains('USDT')].index, inplace=True)#
-        
+        r = requests.get("https://api3.binance.com/api/v3/ticker/price").json()
+
+        df = pd.DataFrame(r)
+        df = df[df['symbol'].str.endswith('USDT')]
         self._valid_pairs = df.symbol.to_list()
+        
         self.pair = pair
         self.timeframe = timeframe
     
