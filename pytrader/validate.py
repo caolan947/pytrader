@@ -24,11 +24,12 @@ class Validater:
     
     @pair.setter
     def pair(self, pair):
-        if not pair in self._valid_pairs: raise ValueError("Invalid pair")
+        if not pair in self._valid_pairs: 
+            raise ValueError(f"Validating provided trading pair. {pair} is an invalid pair. Ensure the provided pair is a valid USDT pair from the following list: {self._valid_pairs}")
         self._pair = pair
 
     @pair.setter
     def timeframe(self, timeframe):
-        
-        if not timeframe in self._valid_timeframes: raise ValueError("Invalid timeframe")
+        if not timeframe in self._valid_timeframes: 
+            raise ValueError(f"Validating provided trading timeframe. {timeframe} is an invalid timeframe. Ensure the provided timeframe is selected from the following list: {self._valid_timeframes}")
         self._timeframe = timeframe
