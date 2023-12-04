@@ -4,7 +4,7 @@ import uuid
 from pytrader import sql_handler
 
 from pytrader.candle import Candle
-from pytrader.validate import Validater
+from pytrader import validate
 from pytrader import conditions
 
 class Streamer:
@@ -46,7 +46,7 @@ class Streamer:
 
         try:
             self.log.info("Validating provided pair and timeframe values")
-            self.validate = Validater(self.pair, self.timeframe)
+            self.validate = validate.Validater(self.pair, self.timeframe)
 
         except ValueError as e:
             self.log.error("Validation failed")
