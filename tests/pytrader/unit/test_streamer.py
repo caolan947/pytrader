@@ -6,13 +6,14 @@ import asyncio
 
 class TestStreamer(asynctest.TestCase):
 
+    @patch('pytrader.streamer.validate')
     @patch.object(streamer.Candle, 'on_error')
     @patch('pytrader.streamer.conditions')
     @patch('pytrader.streamer.sql_handler')
     @patch('pytrader.streamer.BinanceSocketManager')
     @patch('pytrader.streamer.Client')
     @patch('pytrader.streamer.uuid')
-    def setUp(self, mock_stream_id, mock_client, mock_bm, mock_db, mock_conditions, mock_candle):
+    def setUp(self, mock_stream_id, mock_client, mock_bm, mock_db, mock_conditions, mock_candle, mock_validate):
         self.fake_log = Mock()
         self.fake_client = Mock()
         self.fake_ks = Mock()
@@ -21,6 +22,7 @@ class TestStreamer(asynctest.TestCase):
         self.fake_open_condition = Mock()
         self.fake_close_condition = Mock()
         self.fake_candle = Mock()
+        self.fake_validate = Mock()
 
         self.fake_config = {
             'database': {
@@ -38,14 +40,15 @@ class TestStreamer(asynctest.TestCase):
         mock_conditions.trade_close_condition = self.fake_close_condition
 
         self.fake_streamer = Mock(
-            pair = 'fake_pair',
-            timeframe = 'fake_timeframe',
+            pair = 'PAIR1USDT',
+            timeframe = '1m',
             log = self.fake_log,
             file_name = 'fake_file_name',
             run = True,
             stream_id = 'fake_uuid',
             db = self.fake_db,
             client = self.fake_client,
+            validate = self.fake_validate,
             bm = self.fake_bm,
             ks = self.fake_ks,
             config = self.fake_config,
@@ -56,13 +59,14 @@ class TestStreamer(asynctest.TestCase):
 
         mock_stream_id.uuid4.return_value = 'fake_uuid'
         mock_db.SqlController.return_value = self.fake_db
+        mock_validate.Validater.return_value = self.fake_validate
         mock_client.return_value = self.fake_client
         mock_client.KLINE_INTERVAL_1MINUTE = '1m'
         mock_bm.return_value = self.fake_bm
         mock_bm.return_value.kline_socket.return_value = self.fake_ks
         mock_candle.return_value = self.fake_candle
 
-        self.streamer = streamer.Streamer('fake_pair', 'fake_timeframe', self.fake_log, 'fake_file_name', self.fake_config)
+        self.streamer = streamer.Streamer('PAIR1USDT', '1m', self.fake_log, 'fake_file_name', self.fake_config)
         self.streamer.candle = mock_candle
 
     def test___init__(self):

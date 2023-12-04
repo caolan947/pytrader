@@ -4,6 +4,7 @@ import uuid
 from pytrader import sql_handler
 
 from pytrader.candle import Candle
+from pytrader import validate
 from pytrader import conditions
 
 class Streamer:
@@ -43,6 +44,14 @@ class Streamer:
         self.log.info("Creating Binance API client")
         self.client = Client()
 
+        try:
+            self.log.info("Validating provided pair and timeframe values")
+            self.validate = validate.Validater(self.pair, self.timeframe)
+
+        except ValueError as e:
+            self.log.error("Validation failed")
+            raise e
+
         self.log.info("Initialising BinanceSocketManager")
         self.bm = BinanceSocketManager(self.client)
 
@@ -60,7 +69,6 @@ class Streamer:
         async with self.ks as kscm:
             while self.run:
                 result = await kscm.recv()
-
                 self.candle = Candle(result, self.db, self.stream_id)
                 
                 if not self.trade_open and self.candle.close_flag:

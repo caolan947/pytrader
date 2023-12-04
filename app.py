@@ -9,9 +9,9 @@ def main():
 
     log, file_name = logger.config_logger()
 
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("-p", "--pair", help="Trading pair to stream")
-    arg_parser.add_argument("-t", "--timeframe", help="Timeframe for candles data")
+    arg_parser = argparse.ArgumentParser(description="Stream live market data from Binance API with a provided USDT pair and timeframe.")
+    arg_parser.add_argument("-p", "--pair", help="Trading pair to stream", required=True)
+    arg_parser.add_argument("-t", "--timeframe", help="Timeframe for candles data", required=True)
     args = arg_parser.parse_args()
 
     config = yaml.safe_load(open('config.yml'))
